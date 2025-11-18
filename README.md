@@ -37,3 +37,53 @@ Clone the project repository and navigate into the directory.
 git clone [https://github.com/heim-lukas/neo4j-project.git](https://github.com/heim-lukas/neo4j-project.git)
 cd neo4j-project
 ```
+
+### 2. Setup Backend
+
+```bash
+cd backend
+python -m venv venv
+```
+
+**Activate the virtual environment:**
+
+Linux / Mac: `source venv/bin/activate`
+Windows: `venv\Scripts\activate`
+
+**Install dependencies:**
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure Neo4j
+
+- Create a free Neo4j Aura instance
+- add credentials to backend/.env
+
+```
+NEO4J_URI=neo4j+s://<YOUR_AURA_URI>
+NEO4J_USER=neo4j
+NEO4J_PASS=<YOUR_PASSWORD>
+```
+
+### 4. Add Dataset
+
+- Place `steam_games.csv` in the `data/` folder
+
+### 5. Import Data
+
+- This creates Game, Publisher, Genre, and Tag nodes in Neo4j.
+
+```bash
+cd backend
+python load_data_relevant.py
+```
+
+### 6. Run the Backend API
+
+- Start the FastAPI server
+
+```bash
+uvicorn main:app --reload
+```

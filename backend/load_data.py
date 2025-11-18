@@ -1,13 +1,12 @@
 import csv
 from database import get_session
 import re
-import sys
 
 csv.field_size_limit(10_000_000)
 csv_file_path = "data/steam_games.csv"
 
 # Maximal importierte Spiele
-MAX_ROWS = 1000
+MAX_ROWS = 500
 
 def parse_estimated_owners(owners_str):
     """
@@ -41,16 +40,20 @@ def load_relevant_games():
     # --------------------------
     with get_session() as session:
         for i, row in enumerate(rows):
+            game_id = row["AppID"]  # Verwende CSV AppID als eindeutige ID
+
             # --------------------------
             # 1. Game Node
             # --------------------------
             session.run("""
-                MERGE (g:Game {name: $name})
-                SET g.release_date = $release_date,
+                MERGE (g:Game {id: $id})
+                SET g.name = $name,
+                    g.release_date = $release_date,
                     g.estimated_owners = $estimated_owners,
                     g.required_age = toInteger($required_age),
                     g.price = toFloat($price)
             """,
+            id=game_id,
             name=row["Name"],
             release_date=row["Release date"],
             estimated_owners=parse_estimated_owners(row["Estimated owners"]),
@@ -66,9 +69,9 @@ def load_relevant_games():
                 for pub in publishers:
                     session.run("""
                         MERGE (p:Publisher {name: $pub_name})
-                        MERGE (g:Game {name: $game_name})
+                        MERGE (g:Game {id: $game_id})
                         MERGE (p)-[:PUBLISHED]->(g)
-                    """, pub_name=pub, game_name=row["Name"])
+                    """, pub_name=pub, game_id=game_id)
 
             # --------------------------
             # 3. Genres
@@ -78,9 +81,9 @@ def load_relevant_games():
                 for genre in genres:
                     session.run("""
                         MERGE (gen:Genre {name: $genre_name})
-                        MERGE (g:Game {name: $game_name})
+                        MERGE (g:Game {id: $game_id})
                         MERGE (g)-[:HAS_GENRE]->(gen)
-                    """, genre_name=genre, game_name=row["Name"])
+                    """, genre_name=genre, game_id=game_id)
 
             # --------------------------
             # 4. Tags
@@ -90,9 +93,9 @@ def load_relevant_games():
                 for tag in tags:
                     session.run("""
                         MERGE (tg:Tag {name: $tag_name})
-                        MERGE (g:Game {name: $game_name})
+                        MERGE (g:Game {id: $game_id})
                         MERGE (g)-[:HAS_TAG]->(tg)
-                    """, tag_name=tag, game_name=row["Name"])
+                    """, tag_name=tag, game_id=game_id)
 
             # Fortschritt ausgeben
             if (i+1) % 50 == 0:
