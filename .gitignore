@@ -1,0 +1,22 @@
+# Byte-compiled / Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Dataset files (ignore the entire data folder)
+data/
+*.csv
+*.json
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Neo4j or other local database files
+*.db
+*.log
