@@ -25,3 +25,8 @@ export interface PublisherGamesResponse {
   publisher: string;
   games: Game[];
 }
+
+export interface CategoryGamesResponse {
+  category: string;
+  games: Game[];
+}

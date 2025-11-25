@@ -259,6 +259,32 @@ curl -u admin:password "http://localhost:8000/publishers/Ubisoft/games?limit=50"
 }
 ```
 
+#### `GET /categories/{name}/games`
+
+Returns all games tagged with the specified category (tag).
+
+```bash
+curl -u admin:password "http://localhost:8000/categories/Action/games?limit=50"
+```
+
+**Response**
+
+```json
+{
+  "category": "Action",
+  "games": [
+    {
+      "id": 12345,
+      "name": "Sample Game",
+      "release_date": "2022-06-01",
+      "estimated_owners": "500000 - 1000000",
+      "required_age": 13,
+      "price": 19.99
+    }
+  ]
+}
+```
+
 ### Frontend Features
 
 The React frontend provides:
@@ -271,6 +297,7 @@ The React frontend provides:
 - **Routing**: React Router navigation between the list and detail views
 - **Detail View**: Clickable rows open `/games/:id` with additional metadata
 - **Publisher Explorer**: Click a publisher to view all of their games
+- **Category Explorer**: Click a category/tag to view all matching games
 - **Logout**: Secure logout functionality
 
 **Features:**
@@ -280,7 +307,7 @@ The React frontend provides:
 - Refresh button to reload data
 - Loading and error states
 - Tailwind CSS styling for a clean UI
-- Clickable rows open a detail route with extended game and publisher information
+- Clickable rows open a detail route with extended game, publisher, and category information
 
 ---
 

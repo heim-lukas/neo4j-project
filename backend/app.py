@@ -168,3 +168,61 @@ def get_games_by_publisher(
         ]
 
     return {"publisher": publisher["name"], "games": games}
+
+
+@app.get("/categories/{category_name}/games")
+def get_games_by_category(
+    category_name: str,
+    limit: int = 50,
+    username: str = Depends(verify_credentials)
+):
+    """
+    Returns games tagged with the specified category (Tag node).
+    """
+    with get_session() as session:
+        category = session.run(
+            """
+            MATCH (t:Tag)
+            WHERE toLower(t.name) = toLower($category_name)
+            RETURN t.name AS name
+            """,
+            category_name=category_name,
+        ).single()
+
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Category '{category_name}' not found",
+            )
+
+        query = """
+        MATCH (t:Tag)
+        WHERE toLower(t.name) = toLower($category_name)
+        MATCH (g:Game)-[:HAS_TAG]->(t)
+        RETURN g.id AS id,
+               g.name AS name,
+               g.release_date AS release_date,
+               g.estimated_owners AS estimated_owners,
+               g.required_age AS required_age,
+               g.price AS price
+        ORDER BY g.name
+        LIMIT $limit
+        """
+
+        results = session.run(
+            query, category_name=category_name, limit=limit
+        )
+
+        games = [
+            {
+                "id": r["id"],
+                "name": r["name"],
+                "release_date": r["release_date"],
+                "estimated_owners": r["estimated_owners"],
+                "required_age": r["required_age"],
+                "price": r["price"],
+            }
+            for r in results
+        ]
+
+    return {"category": category["name"], "games": games}

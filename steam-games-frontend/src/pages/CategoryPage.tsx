@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { fetchGamesByPublisher } from "../services/api";
+import { fetchGamesByCategory } from "../services/api";
 import GamesTable from "../components/GamesTable";
 import SearchBar from "../components/SearchBar";
 import type { Game } from "../types";
 
-const PublisherPage = () => {
+const CategoryPage = () => {
   const { name } = useParams<{ name: string }>();
-  const publisherName = decodeURIComponent(name ?? "");
+  const categoryName = decodeURIComponent(name ?? "");
   const navigate = useNavigate();
   const { isAuthenticated, getAuthHeader, logout } = useAuth();
 
@@ -26,7 +26,7 @@ const PublisherPage = () => {
 
   const loadGames = useCallback(async () => {
     const authHeader = getAuthHeader();
-    if (!authHeader || !publisherName) {
+    if (!authHeader || !categoryName) {
       setError("Please login again.");
       setLoading(false);
       return;
@@ -35,7 +35,7 @@ const PublisherPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchGamesByPublisher(publisherName, authHeader);
+      const data = await fetchGamesByCategory(categoryName, authHeader);
       setGames(data.games);
       setFilteredGames(data.games);
     } catch (err) {
@@ -48,7 +48,7 @@ const PublisherPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [publisherName, getAuthHeader, logout]);
+  }, [categoryName, getAuthHeader, logout]);
 
   useEffect(() => {
     loadGames();
@@ -67,7 +67,7 @@ const PublisherPage = () => {
 
   const tableEmptyMessage = useMemo(() => {
     if (!games.length) {
-      return "No games found for this publisher.";
+      return "No games found for this category.";
     }
     if (!filteredGames.length) {
       return "No games match your search.";
@@ -83,10 +83,8 @@ const PublisherPage = () => {
     <div className="max-w-6xl mx-auto px-8 py-8">
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <div>
-          <p className="text-sm uppercase text-gray-500">Publisher</p>
-          <h1 className="text-3xl font-bold text-indigo-600">
-            {publisherName}
-          </h1>
+          <p className="text-sm uppercase text-gray-500">Category</p>
+          <h1 className="text-3xl font-bold text-indigo-600">{categoryName}</h1>
         </div>
         <div className="flex gap-2">
           <Link
@@ -95,14 +93,12 @@ const PublisherPage = () => {
           >
             Back to list
           </Link>
-          {publisherName && (
-            <button
-              onClick={loadGames}
-              className="px-4 py-2 bg-indigo-600 text-white rounded font-medium transition-colors hover:bg-indigo-700"
-            >
-              Refresh
-            </button>
-          )}
+          <button
+            onClick={loadGames}
+            className="px-4 py-2 bg-indigo-600 text-white rounded font-medium transition-colors hover:bg-indigo-700"
+          >
+            Refresh
+          </button>
         </div>
       </div>
 
@@ -134,5 +130,4 @@ const PublisherPage = () => {
   );
 };
 
-export default PublisherPage;
-
+export default CategoryPage;

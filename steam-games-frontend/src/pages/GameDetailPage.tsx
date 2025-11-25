@@ -92,6 +92,10 @@ const GameDetailPage = () => {
     navigate(`/publishers/${encodeURIComponent(publisher)}`);
   };
 
+  const handleCategoryClick = (category: string) => {
+    navigate(`/categories/${encodeURIComponent(category)}`);
+  };
+
   const DetailList = ({ title, items }: { title: string; items: string[] }) =>
     items.length ? (
       <div>
@@ -162,7 +166,24 @@ const GameDetailPage = () => {
             </div>
           )}
           <DetailList title="Genres" items={game.genres} />
-          <DetailList title="Tags" items={game.tags} />
+          {game.tags.length > 0 && (
+            <div>
+              <p className="text-sm uppercase text-gray-500 mb-1">
+                Categories
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {game.tags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => handleCategoryClick(tag)}
+                    className="px-3 py-1 text-sm bg-emerald-100 text-emerald-700 rounded-full hover:bg-emerald-200 transition-colors"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

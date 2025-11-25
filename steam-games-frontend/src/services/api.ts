@@ -4,6 +4,7 @@ import type {
   GameDetail,
   GameDetailResponse,
   PublisherGamesResponse,
+  CategoryGamesResponse,
 } from "../types";
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
@@ -62,5 +63,23 @@ export const fetchGamesByPublisher = async (
   );
 
   const data = await handleResponse<PublisherGamesResponse>(response);
+  return data;
+};
+
+export const fetchGamesByCategory = async (
+  categoryName: string,
+  authHeader: string,
+  limit = 50
+): Promise<{ category: string; games: Game[] }> => {
+  const response = await fetch(
+    `/api/categories/${encodeURIComponent(categoryName)}/games?limit=${limit}`,
+    {
+      headers: {
+        Authorization: authHeader,
+      },
+    }
+  );
+
+  const data = await handleResponse<CategoryGamesResponse>(response);
   return data;
 };
