@@ -28,28 +28,26 @@ const HomePage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const fetchInitialGames = async () => {
+      await handleFetchGames();
+    };
+
+    fetchInitialGames();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredGames(allGames);
       return;
     }
+
     const lowerQuery = searchQuery.toLowerCase();
     setFilteredGames(
       allGames.filter((game) => game.name.toLowerCase().includes(lowerQuery))
     );
   }, [searchQuery, allGames]);
-
-  const handleLimitChange = (value: string) => {
-    if (value === "" || /^\d+$/.test(value)) {
-      setLimit(value);
-    }
-  };
-
-  const handleLimitBlur = () => {
-    const limitNum = parseInt(limit, 10);
-    if (!limit || isNaN(limitNum) || limitNum < 1) {
-      setLimit("25");
-    }
-  };
 
   const handleFetchGames = async () => {
     const limitNum = parseInt(limit, 10);
@@ -114,9 +112,9 @@ const HomePage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8">
-      <div className="flex justify-between items-center mb-8 gap-4 flex-wrap">
-        <h1 className="text-4xl font-bold text-indigo-600">Steam Games</h1>
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+        <h1 className="text-4xl font-bold">Steam Games</h1>
         <button
           onClick={() => {
             logout();
@@ -124,43 +122,43 @@ const HomePage = () => {
             setFilteredGames([]);
             setSearchQuery("");
           }}
-          className="px-4 py-2 bg-gray-500 text-white rounded font-medium transition-colors hover:bg-gray-600"
+          className="btn btn-neutral"
         >
           Logout
         </button>
       </div>
 
-      <Controls
-        limit={limit}
-        onLimitChange={handleLimitChange}
-        onLimitBlur={handleLimitBlur}
-        onFetch={handleFetchGames}
-        loading={loading}
-      />
+      <div className="card bg-base-100 mb-6 flex flex-col sm:flex-row justify-between gap-4">
+        <Controls
+          limit={limit}
+          onLimitChange={setLimit}
+          onFetch={handleFetchGames}
+          loading={loading}
+        />
 
-      <SearchBar
-        query={searchQuery}
-        onChange={setSearchQuery}
-        visibleCount={filteredGames.length}
-        totalCount={allGames.length}
-      />
+        <SearchBar query={searchQuery} onChange={setSearchQuery} />
+      </div>
 
+      {/* Error message */}
       {(error || authError) && (
-        <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4 text-center">
-          {error || authError}
+        <div className="alert alert-error mb-4">
+          <span>{error || authError}</span>
         </div>
       )}
 
+      {/* Loading state */}
       {loading ? (
-        <div className="text-center py-8 text-xl text-gray-600">
-          Loading games...
+        <div className="flex justify-center py-16">
+          <span className="loading loading-ring loading-xl"></span>
         </div>
       ) : (
-        <GamesTable
-          games={filteredGames}
-          onSelectGame={handleSelectGame}
-          emptyMessage={tableEmptyMessage}
-        />
+        <div className="card bg-base-100 shadow">
+          <GamesTable
+            games={filteredGames}
+            onSelectGame={handleSelectGame}
+            emptyMessage={tableEmptyMessage}
+          />
+        </div>
       )}
     </div>
   );
