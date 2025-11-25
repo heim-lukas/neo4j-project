@@ -207,6 +207,58 @@ curl -H "Authorization: Basic $(echo -n 'admin:password' | base64)" http://local
 }
 ```
 
+#### `GET /games/{id}`
+
+Returns detailed information for a single game, including publishers, genres, and tags.
+
+```bash
+curl -u admin:password http://localhost:8000/games/12345
+```
+
+**Response:**
+
+```json
+{
+  "game": {
+    "id": 12345,
+    "name": "Sample Game",
+    "release_date": "2022-06-01",
+    "estimated_owners": "500000 - 1000000",
+    "required_age": 13,
+    "price": 19.99,
+    "publishers": ["Example Publisher"],
+    "genres": ["Adventure", "RPG"],
+    "tags": ["Indie", "Story Rich"]
+  }
+}
+```
+
+#### `GET /publishers/{name}/games`
+
+Returns all games published by the specified publisher.
+
+```bash
+curl -u admin:password "http://localhost:8000/publishers/Ubisoft/games?limit=50"
+```
+
+**Response**
+
+```json
+{
+  "publisher": "Ubisoft",
+  "games": [
+    {
+      "id": 12345,
+      "name": "Sample Game",
+      "release_date": "2022-06-01",
+      "estimated_owners": "500000 - 1000000",
+      "required_age": 13,
+      "price": 19.99
+    }
+  ]
+}
+```
+
 ### Frontend Features
 
 The React frontend provides:
@@ -216,6 +268,9 @@ The React frontend provides:
 - **Client-Side Search**: Real-time search filtering by game name
 - **Limit Control**: Adjust the number of games fetched from the API
 - **Responsive Design**: Works on desktop and mobile devices
+- **Routing**: React Router navigation between the list and detail views
+- **Detail View**: Clickable rows open `/games/:id` with additional metadata
+- **Publisher Explorer**: Click a publisher to view all of their games
 - **Logout**: Secure logout functionality
 
 **Features:**
@@ -224,7 +279,8 @@ The React frontend provides:
 - Adjust fetch limit with validation
 - Refresh button to reload data
 - Loading and error states
-- Clean, modern UI
+- Tailwind CSS styling for a clean UI
+- Clickable rows open a detail route with extended game and publisher information
 
 ---
 

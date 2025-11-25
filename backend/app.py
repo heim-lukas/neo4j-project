@@ -66,3 +66,105 @@ def get_games(limit: int = 25, username: str = Depends(verify_credentials)):
             for r in results
         ]
     return {"games": games}
+
+
+@app.get("/games/{game_id}")
+def get_game_detail(game_id: str, username: str = Depends(verify_credentials)):
+    """
+    Returns detailed information for a single game by ID.
+    """
+    query = """
+    MATCH (g:Game {id: $game_id})
+    OPTIONAL MATCH (g)<-[:PUBLISHED]-(p:Publisher)
+    OPTIONAL MATCH (g)-[:HAS_GENRE]->(gen:Genre)
+    OPTIONAL MATCH (g)-[:HAS_TAG]->(tag:Tag)
+    RETURN g.id AS id,
+           g.name AS name,
+           g.release_date AS release_date,
+           g.estimated_owners AS estimated_owners,
+           g.required_age AS required_age,
+           g.price AS price,
+           collect(DISTINCT p.name) AS publishers,
+           collect(DISTINCT gen.name) AS genres,
+           collect(DISTINCT tag.name) AS tags
+    LIMIT 1
+    """
+    with get_session() as session:
+        result = session.run(query, game_id=game_id).single()
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Game with id {game_id} not found",
+            )
+
+        game = {
+            "id": result["id"],
+            "name": result["name"],
+            "release_date": result["release_date"],
+            "estimated_owners": result["estimated_owners"],
+            "required_age": result["required_age"],
+            "price": result["price"],
+            "publishers": [p for p in result["publishers"] if p],
+            "genres": [g for g in result["genres"] if g],
+            "tags": [t for t in result["tags"] if t],
+        }
+
+    return {"game": game}
+
+
+@app.get("/publishers/{publisher_name}/games")
+def get_games_by_publisher(
+    publisher_name: str,
+    limit: int = 50,
+    username: str = Depends(verify_credentials)
+):
+    """
+    Returns games published by the specified publisher name.
+    """
+    with get_session() as session:
+        publisher = session.run(
+            """
+            MATCH (p:Publisher)
+            WHERE toLower(p.name) = toLower($publisher_name)
+            RETURN p.name AS name
+            """,
+            publisher_name=publisher_name,
+        ).single()
+
+        if not publisher:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Publisher '{publisher_name}' not found",
+            )
+
+        query = """
+        MATCH (p:Publisher)
+        WHERE toLower(p.name) = toLower($publisher_name)
+        MATCH (p)-[:PUBLISHED]->(g:Game)
+        RETURN g.id AS id,
+               g.name AS name,
+               g.release_date AS release_date,
+               g.estimated_owners AS estimated_owners,
+               g.required_age AS required_age,
+               g.price AS price
+        ORDER BY g.name
+        LIMIT $limit
+        """
+
+        results = session.run(
+            query, publisher_name=publisher_name, limit=limit
+        )
+
+        games = [
+            {
+                "id": r["id"],
+                "name": r["name"],
+                "release_date": r["release_date"],
+                "estimated_owners": r["estimated_owners"],
+                "required_age": r["required_age"],
+                "price": r["price"],
+            }
+            for r in results
+        ]
+
+    return {"publisher": publisher["name"], "games": games}
