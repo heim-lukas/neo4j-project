@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ErrorCard from "./ErrorCard";
 
 interface LoginFormProps {
   onLogin: (username: string, password: string) => Promise<void>;
@@ -16,50 +17,34 @@ const LoginForm = ({ onLogin, loading, error }: LoginFormProps) => {
   };
 
   return (
-    <div className="max-w-md mx-auto px-8 py-16">
-      <h1 className="text-center text-4xl font-bold text-indigo-600 mb-8">
-        Steam Games API
-      </h1>
-      <div className="bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Login Required
-        </h2>
+    <div className="h-dvh flex justify-center items-center bg-neutral-content px-5">
+      <div className="w-full max-w-[400px] bg-white card shadow-sm p-8">
+        <h1 className="text-2xl font-semibold mb-6 text-center">Steam Games</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Username
-            </label>
+          <label className="input w-full">
+            <span className="label">Username</span>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Enter username"
               required
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
+          </label>
+
+          <label className="input w-full">
+            <span className="label">Password</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Enter password"
               required
             />
-          </div>
-          {error && (
-            <div className="bg-red-100 text-red-700 px-4 py-3 rounded text-sm">
-              {error}
-            </div>
-          )}
+          </label>
+          {error && <ErrorCard error={error} />}
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-6 py-2 bg-indigo-600 text-white rounded font-medium transition-colors hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="btn btn-neutral w-full"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
