@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchGameById } from "../services/api";
 import type { Game, GameDetail } from "../types";
+import GameGraph from "../components/GameGraph";
 
 interface LocationState {
   game?: Game;
@@ -96,18 +97,10 @@ const GameDetailPage = () => {
     navigate(`/categories/${encodeURIComponent(category)}`);
   };
 
-  const DetailList = ({ title, items }: { title: string; items: string[] }) =>
-    items.length ? (
-      <div>
-        <p className="text-sm uppercase text-gray-500 mb-1">{title}</p>
-        <p className="text-gray-800">{items.join(", ")}</p>
-      </div>
-    ) : null;
-
   return (
     <div className="max-w-4xl mx-auto px-8 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-indigo-600">{game.name}</h1>
+        <h1 className="text-4xl font-bold text-primary">{game.name}</h1>
         <Link
           to="/"
           className="px-4 py-2 bg-gray-100 text-gray-700 rounded font-medium transition-colors hover:bg-gray-200"
@@ -116,7 +109,7 @@ const GameDetailPage = () => {
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+      <div className="bg-white rounded-lg shadow-md p-6 space-y-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-sm uppercase text-gray-500 mb-1">Release Date</p>
@@ -146,18 +139,16 @@ const GameDetailPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-8">
           {game.publishers.length > 0 && (
             <div>
-              <p className="text-sm uppercase text-gray-500 mb-1">
-                Publishers
-              </p>
+              <p className="text-sm uppercase mb-2">Publishers</p>
               <div className="flex flex-wrap gap-2">
                 {game.publishers.map((publisher) => (
                   <button
                     key={publisher}
                     onClick={() => handlePublisherClick(publisher)}
-                    className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition-colors"
+                    className="btn btn-accent rounded-full"
                   >
                     {publisher}
                   </button>
@@ -165,18 +156,33 @@ const GameDetailPage = () => {
               </div>
             </div>
           )}
-          <DetailList title="Genres" items={game.genres} />
+          {game.genres.length > 0 && (
+            <div>
+              <p className="text-sm uppercase mb-2">Genres</p>
+              <div className="flex flex-wrap gap-2">
+                {game.genres.map((genre) => (
+                  <button
+                    key={genre}
+                    onClick={() => {
+                      console.log("TODO");
+                    }}
+                    className="btn btn-soft btn-primary rounded-full"
+                  >
+                    {genre}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {game.tags.length > 0 && (
             <div>
-              <p className="text-sm uppercase text-gray-500 mb-1">
-                Categories
-              </p>
+              <p className="text-sm uppercase mb-2">Categories</p>
               <div className="flex flex-wrap gap-2">
                 {game.tags.map((tag) => (
                   <button
                     key={tag}
                     onClick={() => handleCategoryClick(tag)}
-                    className="px-3 py-1 text-sm bg-emerald-100 text-emerald-700 rounded-full hover:bg-emerald-200 transition-colors"
+                    className="btn btn-secondary rounded-full"
                   >
                     {tag}
                   </button>
@@ -185,6 +191,9 @@ const GameDetailPage = () => {
             </div>
           )}
         </div>
+      </div>
+      <div className="mt-10 h-96">
+        <GameGraph game={game} />
       </div>
     </div>
   );

@@ -84,7 +84,7 @@ const CategoryPage = () => {
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <div>
           <p className="text-sm uppercase text-gray-500">Category</p>
-          <h1 className="text-3xl font-bold text-indigo-600">{categoryName}</h1>
+          <h1 className="text-4xl font-bold text-primary">{categoryName}</h1>
         </div>
         <div className="flex gap-2">
           <Link
@@ -93,21 +93,13 @@ const CategoryPage = () => {
           >
             Back to list
           </Link>
-          <button
-            onClick={loadGames}
-            className="px-4 py-2 bg-indigo-600 text-white rounded font-medium transition-colors hover:bg-indigo-700"
-          >
+          <button onClick={loadGames} className="btn btn-soft btn-primary">
             Refresh
           </button>
         </div>
       </div>
 
-      <SearchBar
-        query={searchQuery}
-        onChange={setSearchQuery}
-        visibleCount={filteredGames.length}
-        totalCount={games.length}
-      />
+      <SearchBar query={searchQuery} onChange={setSearchQuery} />
 
       {error && (
         <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4 text-center">
@@ -120,11 +112,13 @@ const CategoryPage = () => {
           Loading games...
         </div>
       ) : (
-        <GamesTable
-          games={filteredGames}
-          onSelectGame={handleSelectGame}
-          emptyMessage={tableEmptyMessage}
-        />
+        <div className="card bg-base-100 shadow mt-6">
+          <GamesTable
+            games={filteredGames}
+            onSelectGame={handleSelectGame}
+            emptyMessage={tableEmptyMessage}
+          />
+        </div>
       )}
     </div>
   );
