@@ -17,9 +17,9 @@ const GROUP_COLORS: { [key: string]: string } = {
 export default function GameGraph({ game }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [hoveredNode, setHoveredNode] = useState<any>(null);
   const navigate = useNavigate();
 
-  // 🔵 your original handlers
   const handlePublisherClick = (publisher: string) => {
     navigate(`/publishers/${encodeURIComponent(publisher)}`);
   };
@@ -87,21 +87,6 @@ export default function GameGraph({ game }: Props) {
         linkColor={() => "#999"}
         linkDirectionalArrowLength={3}
         linkDirectionalArrowRelPos={1}
-        nodeCanvasObject={(node: any, ctx, globalScale) => {
-          const r = node.size || 6;
-
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
-          ctx.fillStyle = node.color;
-          ctx.fill();
-
-          const fontSize = 12 / globalScale;
-          ctx.font = `${fontSize}px Sans-Serif`;
-          ctx.fillStyle = "black";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(node.id, node.x, node.y);
-        }}
         enableNodeDrag={true}
         enableZoomInteraction={true}
         enablePanInteraction={false}
@@ -114,12 +99,29 @@ export default function GameGraph({ game }: Props) {
               handleCategoryClick(node.id);
               break;
             case "genre":
-              //navigate(`/genres/${encodeURIComponent(node.id)}`);
-              break;
             case "game":
-              //navigate(`/games/${encodeURIComponent(node.id)}`);
               break;
           }
+        }}
+        onNodeHover={(node) => {
+          setHoveredNode(node);
+          document.body.style.cursor = node ? "pointer" : "default";
+        }}
+        nodeCanvasObject={(node: any, ctx, globalScale) => {
+          const isHovered = node === hoveredNode;
+          const r = (node.size || 6) * (isHovered ? 1.6 : 1);
+
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+          ctx.fillStyle = node.color;
+          ctx.fill();
+
+          const fontSize = 12 / globalScale;
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.fillStyle = "black";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(node.id, node.x, node.y);
         }}
       />
     </div>
